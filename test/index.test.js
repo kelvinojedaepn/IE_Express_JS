@@ -1,15 +1,39 @@
-const request = require('supertest');
-const express = require('express');
-const app = express();
+import request from 'supertest';
+import app from '../API/app';
+import scraper from '../API/scraper';
 
-app.get('/api/entries', (req, res) => {
-    res.send("Path /api/entries");
-});
+jest.mock('../API/scraper');
 
 describe('GET /api/entries', () => {
-    it('should return "Path /api/entries"', async () => {
+    it('should return an array of entries', async () => {
+        scraper.mockResolvedValue([
+            {
+                title: 'Test Title',
+                link: 'https://example.com',
+                points: 100,
+                comments: 50,
+            },
+        ]);
+
         const response = await request(app).get('/api/entries');
-        expect(response.statusCode).toBe(200); // Ensure the response status is 200 (OK)
-        expect(response.text).toBe("Path /api/entries"); // Ensure the response text is as expected
+
+        expect(response.statusCode).toBe(200);  // Asegúrate de que esperas 200 en lugar de 500 aquí
+        expect(response.body).toEqual([
+            {
+                title: 'Test Title',
+                link: 'https://example.com',
+                points: 100,
+                comments: 50,
+            },
+        ]);
+    });
+
+    it('should return a 500 error if scraper fails', async () => {
+        scraper.mockRejectedValue(new Error('Scraper error'));
+
+        const response = await request(app).get('/api/entries');
+
+        expect(response.statusCode).toBe(500);
+        expect(response.body).toEqual({ message: 'Error fetching data' });
     });
 });
