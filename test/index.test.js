@@ -41,6 +41,6 @@ describe('GET /api/entries', () => {
         // Checks that the response status code is 500
         expect(response.statusCode).toBe(500);
         // Checks that the response body matches the error message
-        expect(response.body).toEqual({ message: 'Error fetching data' });
+        expect(response.body).toEqual({message: 'Error fetching data'});
     });
 });
